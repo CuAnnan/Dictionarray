@@ -6,6 +6,10 @@
     let words;
     // just a key to store the localStorage by
     const LOCAL_STORAGE_KEY='gameData';
+    // used to generate today's number
+    const DAY_ZERO = 19029;
+    // today's number
+    let today;
     // wrap the game data in a json literal for localStorage purposes
     let stateJSON = {
         // an array to hold the gueses
@@ -31,7 +35,10 @@
     let $modal;
     // jquery powered onload event
     $(()=>{
+        // set the modal
         $modal=$('#winModal');
+        // bind the share event
+        $('#shareButton').click(generateShareText);
         // build the array of letters
         for(let i = 65; i < 91; i++)
         {
@@ -41,10 +48,11 @@
         $.getJSON('./dict.json',function(data){
             //generate the PRNG value for the day
             let now = Math.floor(Date.now() / 86400000);
+            console.log(now);
             Math.seedrandom(now);
             let wordIndex = Math.floor(Math.random() * data.length);
             stateJSON.now = now;
-
+            today = now - DAY_ZERO;
             // store the json array locally, which we need to do to ensure that the guess exists in the dictionary
             // then store the word of the day
             words = data;
@@ -200,6 +208,7 @@
         localStorage.setItem(LOCAL_STORAGE_KEY, btoa(JSON.stringify(stateJSON)));
     }
 
+
     function showVictorySplash()
     {
         $('#results .row').each(function(i){
@@ -207,6 +216,39 @@
             $div.text(stateJSON.guessHistory[i+1]);
         });
         $modal.modal('show');
+    }
+
+    function generateShareText()
+    {
+        let glyphRows=[];
+        for(let guessState of stateJSON.guessStateArray)
+        {
+            let glyphRow = '';
+            for(let letterState of guessState)
+            {
+                let glyph='';
+                switch(letterState)
+                {
+                    case 'right':
+                        glyph="🟩";
+                        break;
+                    case 'halfright':
+                        glyph="🟨";
+                        break;
+                    case 'wrong':
+                        glyph="⬜";
+                        break;
+                }
+                glyphRow += glyph;
+            }
+            glyphRows.push(glyphRow);
+        }
+        let text = `Dictionarray ${today}\r\n`+glyphRows.join('\r\n')+"\r\nhttps://cuannan.github.io/Dictionarray/";
+        navigator.clipboard.writeText(text).then(function() {
+            console.log('Async: Copying to clipboard was successful!');
+        }, function(err) {
+            console.error('Async: Could not copy text: ', err);
+        });
     }
 
     function updateCurrentGuess()

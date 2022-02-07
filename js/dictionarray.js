@@ -31,7 +31,7 @@
     let $modal;
     // jquery powered onload event
     $(()=>{
-        $modal=$('#winModal').modal();
+        $modal=$('#winModal');
         // build the array of letters
         for(let i = 65; i < 91; i++)
         {
@@ -74,12 +74,15 @@
             if(stateJSON.now === jsonLSData.now)
             {
                 stateJSON = jsonLSData;
+                // fill in the guesses in the guess grid
                 for(let i = 0; i < stateJSON.guesses.length; i++)
                 {
                     let guess = stateJSON.guesses[i];
                     let state = stateJSON.guessStateArray[i];
                     $(`#guess_${i} .letterContainer`).each(function(j){
+                        // set the class
                         let $row = $(this).addClass(state[j]);
+                        // set the text
                         $('.letter', $row).text(guess[j]);
                     });
                 }

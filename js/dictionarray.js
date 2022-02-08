@@ -102,6 +102,10 @@
                     }
                 }
             }
+            else
+            {
+                stateJSON.guessHistory = jsonLSData.guessHistory;
+            }
         }
         if(stateJSON.won)
         {
